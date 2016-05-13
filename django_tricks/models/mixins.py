@@ -1,5 +1,8 @@
+from django.utils.encoding import python_2_unicode_compatible
+
+
 @python_2_unicode_compatible
-class VerboseNameModel:
+class VerboseNameModel(object):
     """Return a more meaningful model representation, if found
     a field name or method verbose_name() use it, or build
     a new representation.
@@ -26,13 +29,13 @@ class VerboseNameModel:
             six.text_type(self.pk))
 
 
-class ValidateModel:
+class ValidateModel(object):
     def save(self, *args, **kwargs):
         self.full_clean()
         super(ValidateModel, self).save(*args, **kwargs)
 
 
-class AutoNumberModel(models.Model):
+class AutoNumberModel(object):
     NUMBER_FIELD = 'number'
     NUMBER_AUTO = True
 
