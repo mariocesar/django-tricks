@@ -15,8 +15,10 @@ Django Tricks
 
 Django tricks is a set of useful models, views and admins tools.
 
-> I decided after reusing the same model mixins and custom generic views
-> to gather all and make a single maintainable python package with all of them.
+    "I decided after reusing the same model mixins again and again in my projects,
+    to build a maintainable package with all of them."
+
+    -- @mariocesar
 
 * Free software: MIT license
 * Documentation: https://django-tricks.readthedocs.org.
