@@ -10,8 +10,6 @@ Tests for `django_tricks` module.
 
 import unittest
 
-from django_tricks import django_tricks
-
 
 class TestDjango_tricks(unittest.TestCase):
 
