@@ -5,11 +5,11 @@ Django Tricks
 .. image:: https://img.shields.io/pypi/v/django_tricks.svg
         :target: https://pypi.python.org/pypi/django_tricks
 
-.. image:: https://img.shields.io/travis/mariocesar/django_tricks.svg
-        :target: https://travis-ci.org/mariocesar/django_tricks
+.. image:: https://img.shields.io/travis/mariocesar/django-tricks.svg
+        :target: https://travis-ci.org/mariocesar/django-tricks
 
-.. image:: https://readthedocs.org/projects/django_tricks/badge/?version=latest
-        :target: https://readthedocs.org/projects/django_tricks/?badge=latest
+.. image:: https://readthedocs.org/projects/django-tricks/badge/?version=latest
+        :target: https://readthedocs.org/projects/django-tricks/?badge=latest
         :alt: Documentation Status
 
 
