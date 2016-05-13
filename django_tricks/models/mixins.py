@@ -29,7 +29,7 @@ class VerboseNameModel:
 class ValidateModel:
     def save(self, *args, **kwargs):
         self.full_clean()
-        super(BaseModel, self).save(*args, **kwargs)
+        super(ValidateModel, self).save(*args, **kwargs)
 
 
 class AutoNumberModel(models.Model):
@@ -58,4 +58,4 @@ class AutoNumberModel(models.Model):
     def save(self, *args, **kwargs):
         if self.NUMBER_AUTO and not self.number:
             self.number = self.pop_next_number()
-        return super().save(*args, **kwargs)
+        return super(AutoNumberModel, self).save(*args, **kwargs)
