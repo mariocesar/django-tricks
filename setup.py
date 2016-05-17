@@ -20,7 +20,7 @@ test_requirements = []
 
 
 setup(
-    name='django_tricks',
+    name='django-tricks',
     version='0.1.0',
     description="Django tricks is a set of useful models, views and admins tools.",
     long_description=readme + '\n\n' + history,
@@ -33,7 +33,6 @@ setup(
     install_requires=requirements,
     license="MIT",
     zip_safe=False,
-    keywords='django_tricks',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

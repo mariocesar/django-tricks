@@ -2,8 +2,8 @@
 Django Tricks
 ===============================
 
-.. image:: https://img.shields.io/pypi/v/django_tricks.svg
-        :target: https://pypi.python.org/pypi/django_tricks
+.. image:: https://img.shields.io/pypi/v/django-tricks.svg
+        :target: https://pypi.python.org/pypi/django-tricks
 
 .. image:: https://img.shields.io/travis/mariocesar/django-tricks.svg
         :target: https://travis-ci.org/mariocesar/django-tricks

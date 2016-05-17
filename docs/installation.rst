@@ -12,7 +12,7 @@ To install Django Tricks, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install django_tricks
+    $ pip install django-tricks
 
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.

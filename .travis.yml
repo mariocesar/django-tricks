@@ -27,5 +27,5 @@ deploy:
     secure: PLEASE_REPLACE_ME
   on:
     tags: true
-    repo: mariocesar/django_tricks
+    repo: mariocesar/django-tricks
     condition: $TOXENV == py27

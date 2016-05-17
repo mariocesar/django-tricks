@@ -62,3 +62,42 @@ class AutoNumberModel(object):
         if self.NUMBER_AUTO and not self.number:
             self.number = self.pop_next_number()
         return super(AutoNumberModel, self).save(*args, **kwargs)
+
+
+class MPAwareModel(object):
+    SLUG_SEPARATOR = '/'
+    NAME_SEPARATOR = ' > '
+
+    SLUG_FIELD = 'slug'
+
+    def get_name_path(self, separator=None):
+        if not separator:
+            separator = self.SLUG_SEPARATOR
+        names = [node.verbose_name() for node in self.get_ancestors_and_self()]
+        return separator.join(names)
+
+    def get_slug_path(self, separator=None):
+        if not separator:
+            separator = self.SLUG_SEPARATOR
+        slugs = [getattr(node, self.SLUG_FIELD) for node in self.get_ancestors_and_self()]
+        return separator.join(slugs)
+
+    def has_children(self) -> bool:
+        """Check the category has one children or more."""
+        return self.get_children_count() > 0
+
+    def get_ancestors_and_self(self) -> list:
+        """Return a list of all ancestors including the category."""
+        return chain(self.get_ancestors(), [self])
+
+    def get_descendants_and_self(self) -> list:
+        """Return a list of all descendants including the category."""
+        return chain([self], self.get_descendants())
+
+    def filter(self, *args, **kwargs):
+        """Return a queryset with all matching nodes."""
+        return self.get_descendants().filter(*args, **kwargs)
+
+    def exclude(self, *args, **kwargs):
+        """Return a queryset with all matching nodes excluded."""
+        return self.get_descendants().filter(*args, **kwargs)
