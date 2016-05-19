@@ -1,3 +1,7 @@
+from itertools import chain
+
+from django.conf import settings
+from django.utils import six
 from django.utils.encoding import python_2_unicode_compatible
 
 
@@ -23,8 +27,10 @@ class VerboseNameModel(object):
         elif hasattr(self, 'name'):
             return self.name
 
+        cls = type(self)
+
         return "<%s:%s pk=%s>" % (
-            six.text_type(class_.__module__),
+            six.text_type(cls.__module__),
             six.text_type(type(self)),
             six.text_type(self.pk))
 
