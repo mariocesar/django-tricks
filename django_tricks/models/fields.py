@@ -93,9 +93,13 @@ class FlagsCheckboxSelectMultiple(widgets.CheckboxSelectMultiple):
         return value
 
     def append_choices(self, field_name, choices):
-        flags = list(chain(*self.queryset.values_list(field_name, flat=True)))
-        value_choices = [value for value, label in choices]
-        flags = filter(lambda flag: flag not in value_choices, flags)
+        flags = self.queryset.values_list(field_name, flat=True)
+        flags = filter(lambda f: f is not None, flags)  # Remove empty lists
+        flags = chain(*flags)  # Concatenate lists
+        flags = set(flags)  # Remove duplicates
+
+        values = [value for value, label in choices]
+        flags = filter(lambda flag: flag not in values, flags)
 
         return list(chain(choices, [(value, value.title()) for value in flags]))
 
@@ -131,12 +135,11 @@ class FlagsField(ArrayField):
         super(FlagsField, self).__init__(base_field=base_field, size=size, **kwargs)
 
     def formfield(self, **kwargs):
-        defaults = {
-            'form_class': SimpleFlagField,
-            'widget': FlagsCheckboxSelectMultiple(
-                choices=self.flags,
-                queryset=self.model._default_manager.filter())
-        }
+        defaults = {'form_class': SimpleFlagField,
+                    'widget': FlagsCheckboxSelectMultiple(
+                        choices=self.flags,
+                        queryset=self.model._default_manager.filter())}
+
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
