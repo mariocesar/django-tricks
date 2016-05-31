@@ -15,7 +15,7 @@ class FilePermissionError(Exception):
 VALID_KEY_CHARS = string.ascii_uppercase + string.ascii_lowercase + string.digits
 
 
-def load_settings_from_environment(envname, basedir, key_length=64):
+def load_environment(envname, basedir, key_length=64):
     config = None
 
     # We don't create a lockfike in the project path, this is
