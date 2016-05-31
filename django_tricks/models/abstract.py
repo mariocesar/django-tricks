@@ -19,7 +19,7 @@ class UniqueTokenModel(models.Model):
         abstract = True
 
     def get_token(self):
-        return uuid4().hext
+        return str(uuid4().hex)
 
     def save(self, **kwargs):
         if not self.token:
