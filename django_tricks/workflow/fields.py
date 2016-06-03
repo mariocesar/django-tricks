@@ -3,6 +3,7 @@ from functools import wraps
 from itertools import chain
 
 from django.db.models import CharField
+from django.dispatch import Signal
 from django.utils.functional import curry
 
 
@@ -20,16 +21,12 @@ class DefaultDict(OrderedDict):
 class Workflow(CharField):
     State = namedtuple('State', ['state', 'label'])
     Starts = namedtuple('Starts', ['state'])
-    Fork = namedtuple('Fork', ['from_state', 'to_state', 'label'])
-    Condition = namedtuple('Condition', ['state', 'condition', 'operator'])
     Ends = namedtuple('Ends', ['state'])
     Transition = namedtuple('Transition', ['from_state', 'to_state', 'label'])
 
-    AND = 'AND'
-    OR = 'OR'
-
     def __init__(self, *nodes, **kwargs):
-        self.nodes = nodes
+        if not self.nodes:
+            self.nodes = nodes
 
         self._tree = DefaultDict(list)
         self._states = DefaultDict(lambda: {
@@ -44,15 +41,15 @@ class Workflow(CharField):
             self._tree[type(node)].append(node)
 
         for node in self.nodes:
-            if isinstance(node, Workflow.Starts):
+            if isinstance(node, self.Starts):
                 state = self.get_state(node.state)
                 self._states[state]['starts'] = True
 
-            elif isinstance(node, Workflow.Ends):
+            elif isinstance(node, self.Ends):
                 state = self.get_state(node.state)
                 self._states[state]['ends'] = True
 
-            elif isinstance(node, Workflow.Transition):
+            elif isinstance(node, self.Transition):
                 from_state = self.get_state(node.from_state)
                 to_state = self.get_state(node.to_state)
 
@@ -71,59 +68,55 @@ class Workflow(CharField):
         super().__init__(**kwargs)
 
     def get_state(self, state_code):
-        for state in self._tree[Workflow.State]:
+        for state in self._tree[self.State]:
             if state.state == state_code:
                 return state
         raise Exception('Unknown state: %s' % state_code)
 
     def get_states(self):
-        return self._tree[Workflow.State]
+        return self._tree[self.State]
 
     def get_starts(self):
-        return self._tree[Workflow.Starts]
-
-    def get_forks(self):
-        return self._tree[Workflow.Fork]
-
-    def get_conditions(self):
-        return chain(self._tree[Workflow.AndCondition], self._tree[Workflow.OrCondition])
+        return self._tree[self.Starts]
 
     def get_ends(self):
-        return self._tree[Workflow.Ends]
+        return self._tree[self.Ends]
 
     def get_transitions(self):
-        return self._tree[Workflow.Transition]
+        return self._tree[self.Transition]
 
     def get_state_choices(self):
         """Return a choice like list of all available status."""
         choices = list(set(chain(*((step.from_state, step.to_state) for step in self.get_transitions()))))
         return [(choices, choices.title()) for choices in choices]
 
-    @staticmethod
-    def before_transition(func):
+    @classmethod
+    def before_transition(cls, func):
         """Executed before transition to STATE"""
 
-        def decorator(state):
+        def check_transition(state):
             @wraps(func)
             def wrapper(self):
                 return func(self)
 
             return wrapper
 
-        return decorator
+        cls.pre_transition.connect(check_transition)
+
+        return check_transition
 
     @staticmethod
     def after_transition(func):
         """Executed after transition to STATE"""
 
-        def decorator(state):
+        def check_transition(state):
             @wraps(func)
             def wrapper(self):
                 return func(self)
 
             return wrapper
 
-        return decorator
+        return check_transition
 
     def _get_next_states(self, field):
         """Return a choice like list of the available status for the current state."""
@@ -135,11 +128,16 @@ class Workflow(CharField):
 
     def contribute_to_class(self, cls, name, virtual_only=False):
         super().contribute_to_class(cls, name, virtual_only)
+
+        setattr(cls, 'post_transition', Signal(providing_args=["instance"]))
+        setattr(cls, 'pre_transition', Signal(providing_args=["instance"]))
+
+        setattr(cls, 'current_state', self)
         setattr(cls, 'get_next_states', curry(self._get_next_states, field=self))
 
     def validate(self, value, model_instance):
-        # TODO: Validate state transitions
-        return super().validate(value, model_instance)
+        super().validate(value, model_instance)
+        self.pre_transition.send(sender=self.__class__, instance=model_instance, state=value)
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
