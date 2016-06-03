@@ -91,7 +91,7 @@ class Workflow(CharField):
         return [(choices, choices.title()) for choices in choices]
 
     @classmethod
-    def before_transition(cls, func):
+    def transition(cls, func):
         """Executed before transition to STATE"""
 
         def check_transition(state):
@@ -102,19 +102,6 @@ class Workflow(CharField):
             return wrapper
 
         cls.pre_transition.connect(check_transition)
-
-        return check_transition
-
-    @staticmethod
-    def after_transition(func):
-        """Executed after transition to STATE"""
-
-        def check_transition(state):
-            @wraps(func)
-            def wrapper(self):
-                return func(self)
-
-            return wrapper
 
         return check_transition
 
