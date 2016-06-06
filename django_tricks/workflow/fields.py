@@ -19,12 +19,16 @@ class DefaultDict(OrderedDict):
 
 
 class Workflow(CharField):
+    nodes = None
+    pre_transition = Signal(providing_args=["instance"])
+
     State = namedtuple('State', ['state', 'label'])
     Starts = namedtuple('Starts', ['state'])
     Ends = namedtuple('Ends', ['state'])
     Transition = namedtuple('Transition', ['from_state', 'to_state', 'label'])
 
     def __init__(self, *nodes, **kwargs):
+
         if not self.nodes:
             self.nodes = nodes
 
@@ -62,8 +66,8 @@ class Workflow(CharField):
                 if from_state not in self._states[to_state]['transition_from']:
                     self._states[to_state]['transition_from'].append(from_state)
 
-        kwargs['max_length'] = 255
-        kwargs['db_index'] = True
+        kwargs.setdefault('max_length', 20)
+        kwargs.setdefault('db_index', True)
         kwargs['choices'] = self.get_state_choices()
         super().__init__(**kwargs)
 
@@ -91,12 +95,12 @@ class Workflow(CharField):
         return [(choices, choices.title()) for choices in choices]
 
     @classmethod
-    def transition(cls, func):
+    def transition(cls, state):
         """Executed before transition to STATE"""
 
-        def check_transition(state):
+        def check_transition(func, **kwargs):
             @wraps(func)
-            def wrapper(self):
+            def wrapper(self, **kwargs):
                 return func(self)
 
             return wrapper
@@ -115,9 +119,6 @@ class Workflow(CharField):
 
     def contribute_to_class(self, cls, name, virtual_only=False):
         super().contribute_to_class(cls, name, virtual_only)
-
-        setattr(cls, 'post_transition', Signal(providing_args=["instance"]))
-        setattr(cls, 'pre_transition', Signal(providing_args=["instance"]))
 
         setattr(cls, 'current_state', self)
         setattr(cls, 'get_next_states', curry(self._get_next_states, field=self))
