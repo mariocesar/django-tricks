@@ -218,7 +218,7 @@ class DefaultRandomCharField(CharField):
         while True:
             value = self.get_random_option()
 
-            if model_instance._default_manager.objects.filter(**{self.name: value}).exists():
+            if model_instance._default_manager.filter(**{self.name: value}).exists():
                 continue
             else:
                 return value
