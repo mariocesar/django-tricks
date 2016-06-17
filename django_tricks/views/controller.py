@@ -36,11 +36,14 @@ class ControllerView(six.with_metaclass(ControllerType)):
 
         for pattern in self.url_patterns:
             try:
-                sub_match = pattern.resolve(self.path)
+                resolver_match = pattern.resolve(self.path)
             except Resolver404:
-                raise Http404('Controller view not found.')
+                raise Http404('Controller view "%s" not found.' % self.path)
             else:
-                if sub_match:
-                    return sub_match.func(self, request, *args, **kwargs)
+                if resolver_match:
+                    callback, callback_args, callback_kwargs = resolver_match
+                    request.resolver_match = resolver_match
 
-            raise Http404('Controller view not found.')
+                    return callback(self, request, *args, **callback_kwargs)
+
+        raise Http404('No views registered in the controller %s.' % type(self))

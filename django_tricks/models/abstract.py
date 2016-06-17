@@ -34,6 +34,7 @@ if treebeard:
     class MaterializedPathNode(MPAwareModel, MP_Node):
         slug = models.SlugField(max_length=255, db_index=True, unique=False, blank=True)
         node_order_by = ['name']
+        node_order_by = ['numval', 'strval']
 
         class Meta:
             abstract = True
